@@ -4,13 +4,23 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jamstastic</title>
+    <title>{{ title }}</title>
     <style>
       body {
         text-align: center;
         background: #1d1e22;
         color: #dddcdd;
         font-family: monospace;
+      }
+
+      a {
+        color: #dddcdd;
+        opacity: 0.8;
+      }
+
+      a:hover {
+        color: #e30b5d;
+        opacity: 1;
       }
 
       div.container {
@@ -25,13 +35,6 @@
   </head>
 
   <body>
-    <div class="container">
-      <h1>This is a page for you</h1>
-      <div class="vibe">You are Jamstastic</div>
-      <div class="honeypot">
-        <span role="img" aria-label="honey pot" aria-hidden="false">🍯</span>
-      </div>
-    </div>
-    <script src="vibe.js"></script>
+    {{ content | safe }}
   </body>
 </html>
