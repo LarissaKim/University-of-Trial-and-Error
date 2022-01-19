@@ -6,6 +6,7 @@ module.exports = function (config) {
     dir: {
       input: 'src',
       output: '_site',
+      data: '_data',
     },
   };
 };
