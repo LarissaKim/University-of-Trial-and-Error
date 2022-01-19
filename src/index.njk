@@ -9,5 +9,18 @@ layout: base.njk
     <div class="honeypot">
       <span role="img" aria-label="honey pot" aria-hidden="false">🍯</span>
     </div>
+
+    <div class="news-data"></div>
+    <ul class="news-list">
+    {% for article in news.articles %}
+      <li class="news-list__item">
+        <img src="{{article.urlToImage}}" alt="{{article.title}}" class="news-list__item--image" />
+        <h2 class="news-list__item--title" >
+          <a href="{{article.url}}" class="news-list__item--link" >{{ article.title }}</a>
+        </h2>
+        <span class="news-list__item--meta" >{{article.source.name}} | <time>{{article.publishedAt}}</time></span>
+      </li>
+    {% endfor %}
+    </ul>
 </div>
 <script src="/js/vibe.js"></script>
