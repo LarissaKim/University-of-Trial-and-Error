@@ -5,7 +5,7 @@ module.exports = function (config) {
     pathPrefix: '/jamstastic/',
     dir: {
       input: 'src',
-      output: 'dist',
+      output: '_site',
     },
   };
 };
