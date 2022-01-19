@@ -17,7 +17,6 @@ const category = categories[Math.floor(Math.random() * Math.floor(categories.len
 
 module.exports = async () => {
   try {
-    // TODO: Get random country, category on refresh
     const response = await axios.get(
       `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${process.env.NEWS_API_KEY}&pageSize=5`
     );

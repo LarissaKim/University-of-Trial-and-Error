@@ -5,6 +5,7 @@ Website experiments using JavaScript, API, and Markdown.
 ## Roadmap
 
 [ ] Configure GitHub workflow to host on GitHub Pages with Eleventy
+[ ] Get random country, category from NewsAPI on page refresh
 
 ### References
 
