@@ -9,12 +9,17 @@ permalink: /{{ news.country }}/index.html
 ---
 
 <div class="container">
-  <h1>News just for you from {{ news.country }}</h1>
     <div class="honeypot">
       <span role="img" aria-label="honey pot" aria-hidden="false">🍯</span>
     </div>
 
-    <div class="news-data"></div>
+    <div class="weather-data">
+      <h1 class="city">Current weather in </h1>
+      <p class="temp">Feels like </p>
+      <p class="desc">Conditions: </p>
+    </div>
+
+  <h1>News just for you from {{ news.country }}</h1>
     <ul class="news-list">
     {% for article in news.articles %}
       <li class="news-list__item">
@@ -27,3 +32,4 @@ permalink: /{{ news.country }}/index.html
     {% endfor %}
     </ul>
 </div>
+<script src="{{ '/js/weather.js' | url }}"></script>
