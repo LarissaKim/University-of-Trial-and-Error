@@ -11,5 +11,4 @@ Website experiments using JavaScript, API, and Markdown.
 
 - freeCodeCamp.org's [JAMstack Course](https://www.youtube.com/watch?v=A_l0qrPUJds)
   - [Course repo](https://github.com/philhawksworth/fcc-1-simply-static)
-- [Eleventy and Github pages](https://www.linkedin.com/pulse/eleventy-github-pages-lea-tortay/)
-- peaceiris' [GitHub Pages Action repo](https://github.com/peaceiris/actions-gh-pages)
+- Code Cadette's [Free blog with eleventy and github pages](https://www.youtube.com/watch?v=x4rRO12swrw)
