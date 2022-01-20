@@ -4,13 +4,18 @@ on: [push]
 jobs:
   build_deploy:
     runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Node.js setup
-        uses: actions/setup-node@v2
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies and build
         - run: npm install
@@ -19,5 +24,5 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
+          publish_dir: ./build
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site

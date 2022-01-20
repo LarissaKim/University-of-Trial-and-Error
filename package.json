@@ -5,7 +5,7 @@
   "main": "vibe.js",
   "scripts": {
     "build": "eleventy",
-    "serve": "eleventy --serve"
+    "start": "eleventy --serve"
   },
   "keywords": [],
   "author": "Larissa Kim",
