@@ -1,27 +1,28 @@
-const axios = require('axios');
 require('dotenv').config();
+const axios = require('axios');
 
-const countries = ['ca', 'mx', 'pl', 'kr'];
-const categories = [
-  'business',
-  'entertainment',
-  'general',
-  'health',
-  'science',
-  'sports',
-  'technology',
-];
+const countries = require('./countries.json');
 
-const country = countries[Math.floor(Math.random() * Math.floor(countries.length))];
-const category = categories[Math.floor(Math.random() * Math.floor(categories.length))];
-
-module.exports = async () => {
+async function getNews(country) {
   try {
     const response = await axios.get(
-      `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${process.env.NEWS_API_KEY}&pageSize=5`
+      `https://newsapi.org/v2/top-headlines?country=${country}&category=technology&apiKey=${process.env.NEWS_API_KEY}&pageSize=5`
     );
-    return response.data;
+
+    return {
+      country: country,
+      articles: response.data.articles,
+    };
   } catch (error) {
     console.error(error.message);
   }
+}
+
+module.exports = async () => {
+  const newsPromises = countries.map(getNews);
+
+  return Promise.all(newsPromises).then((newsObjects) => {
+    console.log('newsObjects: ', newsObjects);
+    return [].concat.apply([], newsObjects);
+  });
 };
