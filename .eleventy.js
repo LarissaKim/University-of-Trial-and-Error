@@ -7,7 +7,7 @@ module.exports = function (config) {
     dir: {
       input: 'src',
       includes: '_includes',
-      output: 'build',
+      output: '_site',
     },
   };
 };
