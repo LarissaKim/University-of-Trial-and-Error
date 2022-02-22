@@ -1,18 +1,15 @@
 {
   "name": "jamstastic",
   "version": "1.0.0",
-  "description": "Website experiments using JavaScript, API, and Markdown.",
   "main": "vibe.js",
   "scripts": {
-    "build": "eleventy",
-    "start": "eleventy --serve"
+    "start": "eleventy --serve",
+    "build": "eleventy"
   },
   "keywords": [],
   "author": "Larissa Kim",
   "license": "ISC",
   "dependencies": {
-    "@11ty/eleventy": "^1.0.0",
-    "axios": "^0.25.0",
-    "dotenv": "^14.2.0"
+    "@11ty/eleventy": "^1.0.0"
   }
 }

@@ -5,73 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ title }}</title>
-    <style>
-      body {
-        text-align: center;
-        background: #1d1e22;
-        color: #dddcdd;
-        font-family: monospace;
-      }
-
-      a {
-        color: #dddcdd;
-        opacity: 0.8;
-      }
-
-      a:hover {
-        color: #e30b5d;
-        opacity: 1;
-      }
-
-      div.container {
-        width: 800px;
-        margin: 0 auto;
-      }
-
-      img {
-        display: block;
-        height: 200px;
-        width: 200px;
-        object-fit: cover;
-      }
-
-      .honeypot {
-        font-size: 4rem;
-        margin-bottom: 4rem;
-      }
-
-      .news-list {
-        width: 100%;
-	      list-style: none;
-	      display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-	      align-items: center;
-        margin: 0;
-	      padding: 0;
-      }
-
-      .news-list__item {
-        width: 100%;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-
-      .news-list__item:last-child() {
-        margin-bottom: 0;
-      }
-      
-      .news-list__item--link:hover {
-        color: #dddcdd;
-        opacity: 1;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
 
   <body>
-    <header><a href="{{ '/' | url }}">For you</a> | <a href="{{ '/about' | url }}">About this page for you</a></header>
+    <header>
+      <a href="{{ '/' | url }}">
+        For you
+      </a>
+        | 
+      <a href="{{ '/about' | url }}">
+        About this page for you
+      </a>
+    </header>
     {{ content | safe }}
   </body>
 </html>

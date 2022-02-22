@@ -1,21 +1,20 @@
 ---
-title: A page for you | Jamstastic
+title: Jamstastic
 layout: base.njk
 ---
 
 <div class="container">
-  <h1>This is a page for you</h1>
-    <div class="vibe">You are Jamstastic</div>
+  <h1>You are Jamstastic</h1>
+    <div class="vibe"></div>
     <div class="honeypot">
       <span role="img" aria-label="honey pot" aria-hidden="false">🍯</span>
     </div>
 
-    <div class="country-data"></div>
-    <h2>News for you</h2>
+    <h2>For Review & Reflection</h2>
     <ul class="news-list">
-    {% for item in news %}
-      <li class="country-list__item">
-          <a href="{{ item.country }}" class="country-list__item--link" >{{ item.country }}</a>
+    {% for item in collections.notes %}
+      <li>
+          <a href="{{ item.url | url }}" class='animated-underline'>{{ item.data.title }}</a>
       </li>
     {% endfor %}
     </ul>
