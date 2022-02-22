@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Writing Resilient Components</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>Writing Resilient Components</h1>
+<p>Source: <a href="https://overreacted.io/writing-resilient-components/">Writing Resilient Components</a></p>
+<h2>Don't stop the data flow</h2>
+<p><em>What needs to happen if props and state change?</em></p>
+<ul>
+<li>Rendering
+<ul>
+<li>Read and do additional computations directly from props rather than via a copy from state</li>
+</ul>
+</li>
+<li>Side Effects
+<ul>
+<li>For every method called in useEffect, check if it uses props or state</li>
+<li>Ensure useEffect will re-run whenever props and state changes</li>
+<li>Don't like to useEffect about dependencies</li>
+</ul>
+</li>
+</ul>
+<h2>Always be ready to render</h2>
+<p>A parent component re-rendering more often should not affect a child component's ability to render.</p>
+<p>Stress-test to check if child breaks:</p>
+<pre><code class="language-js">useEffect(() =&gt; {
+  // Don't forget to remove this immediately!
+  setInterval(() =&gt; this.forceUpdate(), 100);
+}, []);
+</code></pre>
+<h2>No component is a singleton</h2>
+<p>Showing or hiding a tree shouldn’t break components outside of that tree.</p>
+<p>Stress-test to test component fragility:</p>
+<pre><code class="language-js">ReactDOM.render(
+  &lt;&gt;
+    &lt;App /&gt;
+    &lt;App /&gt;
+  &lt;/&gt;,
+  document.getElementById('root')
+);
+</code></pre>
+<h2>Keep the local state isolated</h2>
+<p>Local state: an interaction that would not show in the other copy if the component was rendered twice</p>
+</article>
+  </body>
+</html>

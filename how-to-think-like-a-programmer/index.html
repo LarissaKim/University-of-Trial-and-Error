@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How To Think Like A Programmer</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>How To Think Like A Programmer</h1>
+<p>Source: <a href="https://www.youtube.com/watch?v=azcrPFhaY9k">How To Think Like A Programmer</a></p>
+<p>Programming isn't about languages. It's about solving problems and explaining things to the idiot computer.</p>
+<h5>HOW before WHAT</h5>
+<p>Write out concepts first, the convert to code later. Understand the problem you're trying to solve.</p>
+<p>Comments don't explain code to the programmer. Code explains comments to the computer.</p>
+<p>Algorithm -&gt; Comments -&gt; Code</p>
+<p>Debugging</p>
+<ul>
+<li>Don't start with the solution</li>
+<li>Did you tell it what do to incorrectly? Or to do the wrong thing?</li>
+<li>Write code defensively</li>
+<li>What are you not understanding? Start by truly understanding the problem</li>
+</ul>
+<p>Problem -&gt; New tool -&gt; Algorithm -&gt; Comments -&gt; Code</p>
+<h3>New variable</h3>
+<ul>
+<li>name</li>
+<li>type: type of data</li>
+<li>initVal: starting value</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Create a variable called <strong><code>name</code></strong> of type <strong><code>type</code></strong> that starts with the value <strong><code>initVal</code></strong></p>
+<h3>Output</h3>
+<ul>
+<li>message: text to display</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Output the text <strong><code>message</code></strong></p>
+<h3>Input</h3>
+<ul>
+<li>variable: stores user input</li>
+<li>message: question to user</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Ask the user <strong><code>message</code></strong> and store the answer in <strong><code>variable</code></strong></p>
+<h3>Convert to integer</h3>
+<ul>
+<li>oldVariable: the non-integer format</li>
+<li>intVariable: the integer result</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Convert <strong><code>oldVarible</code></strong> to integer and store in <strong><code>intVariable</code></strong></p>
+<h3>While loop</h3>
+<ul>
+<li>sentry: controls the loop</li>
+<li>initialization code: initialize sentry</li>
+<li>condition: if true, causes loop to repeat, otherwise causes loop to stop</li>
+<li>change code: changes sentry to trigger condition</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Initialize <strong><code>sentry</code></strong> with <strong><code>initialization code</code></strong> then ocntinue to loop as long as <strong><code>condition</code></strong> is true. Inside the loop, change <strong><code>sentry</code></strong> with <strong><code>change code</code></strong></p>
+<h5>Examples</h5>
+<pre><code class="language-python">correct = &quot;Python&quot;
+tries = 0
+
+keepGoing = True
+while(keepGoing):
+    tries = tries + 1
+    print(&quot;try #&quot;, tries)
+
+    guess = input(&quot;What is the password? &quot;)
+    if guess == correct:
+        print(&quot;That's correct! Here's the treasure!&quot;)
+        keepGoing = False
+
+    elif tries &gt;= 3:
+        print(&quot;Too many wrong tries. Launching the missiles&quot;)
+        keepGoing = False
+</code></pre>
+<pre><code class="language-js">const correct = &quot;JavaScript&quot;;
+let tries = 0;
+let keepGoing = true;
+
+while(keepGoing):
+    tries = tries + 1;
+    console.log(&quot;try #&quot;, tries);
+
+    const guess = window.prompt(&quot;What is the password? &quot;);
+    if (guess === correct) {
+        console.log(&quot;That's correct! Come on in!&quot;);
+        keepGoing = false;
+    } else if (tries &gt;= 3) {
+        console.log(&quot;Too many wrong tries. Launching the missiles&quot;);
+        keepGoing = false;
+    }
+</code></pre>
+<h3>For loop</h3>
+<ul>
+<li>sentry: int variable that controls the loop</li>
+<li>start: start int value of sentry</li>
+<li>finish: end int value of sentry</li>
+<li>change: int to add to sentry at each pass</li>
+</ul>
+<h4>Algorithm</h4>
+<p>Begin with <strong><code>sentry</code></strong> at <strong><code>start</code></strong> and add <strong><code>change</code></strong> to sentry on each pass until <strong><code>sentry</code></strong> is greater than or equal to <strong><code>finish</code></strong></p>
+<ul>
+<li>Lists and tuples</li>
+<li>String manipulation (w/ pre-existing object)</li>
+<li>Working w/ built-in help</li>
+<li>List interations</li>
+<li>Functions (scope, parameters, return)</li>
+<li>Objects</li>
+</ul>
+<p>https://skorks.com/2010/04/on-the-value-of-fundamentals-in-software-development/</p>
+<ul>
+<li>coupling</li>
+<li>cohesion</li>
+<li>abstraction</li>
+<li>dependency injection</li>
+<li>lazy loading</li>
+<li>optimistic locking</li>
+<li>MVC</li>
+<li>arrays</li>
+<li>hashes</li>
+<li>trees</li>
+<li>sorting</li>
+<li>searching</li>
+<li>some graph algorithms</li>
+<li>caching</li>
+<li>certain object oriented concepts</li>
+<li>implications of using them on small and large data sets</li>
+<li>common problems they apply to</li>
+<li>limitations and how to overcome them</li>
+</ul>
+</article>
+  </body>
+</html>

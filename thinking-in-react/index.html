@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thinking in React</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>Thinking in React</h1>
+<p>Source: <a href="https://reactjs.org/docs/thinking-in-react.html">Thinking in React</a></p>
+<ol>
+<li>
+<p>Draw boxes around every component and sub-component. Give them all names.</p>
+<ul>
+<li>Each component should do one thing.</li>
+</ul>
+</li>
+<li>
+<p>Build a static version using props (no state)</p>
+</li>
+<li>
+<p>Identify the minimal set of mutable state needed
+It's not state if the data:</p>
+<ul>
+<li>is passed in from a parent via props</li>
+<li>remains unchanged over time</li>
+<li>can be computed based on any other state/prop in the component</li>
+</ul>
+</li>
+<li>
+<p>Identify which component mutates/owns this state</p>
+<ul>
+<li>Identify every component that renders something based on that state</li>
+<li>Find a common owner component</li>
+<li>Either the common owner or another component higher up should own the state</li>
+<li>Alternatively, a new component should be created above the common owner solely for holding the state</li>
+</ul>
+</li>
+<li>
+<p>Add inverse data flow</p>
+</li>
+</ol>
+</article>
+  </body>
+</html>

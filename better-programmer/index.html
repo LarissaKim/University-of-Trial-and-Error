@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Becoming a Better Programmer</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>Becoming a Better Programmer</h1>
+<p>Source: Becoming a Better Programmer: A Handbook for People Who Care About Code by Pete Goodliffe</p>
+<h2>Bugs</h2>
+<h3>Bug Hunting</h3>
+<p>Difficult factors:</p>
+<ul>
+<li>how reproducible it is</li>
+<li>time between the cause of the bug entering the code and it actually being noticed</li>
+</ul>
+<p>Methodically investigate and characterize the bug:</p>
+<ul>
+<li>Reduce it to the simplest set of reproduction steps possible.</li>
+<li>Ensure you are focusing on a single problem.</li>
+<li>Determine how repeatable the problem is:</li>
+<li>How frequently do your reproduction steps demonstrate the problem?</li>
+<li>Is it reliant on a simple series of actions?</li>
+<li>Does it depend on software configuration or the type of machine you’re running on?</li>
+<li>Do peripheral devices attached make any difference?</li>
+</ul>
+<h3>Debugging Strategies</h3>
+<ol>
+<li>Lay Traps</li>
+</ol>
+<ul>
+<li>Find places in the code path between the point when the system seems correct and the point where its state is invalid, and set traps to catch the fault.</li>
+<li>Add assertions or tests to verify the facts that must hold for the state to be correct. Add diagnostic printouts to see the state of the code so you can work out what’s going on.</li>
+</ul>
+<ol start="2">
+<li>Binary Chop</li>
+</ol>
+<ul>
+<li>Work out the start and the end of a chain of events.</li>
+<li>Partition the problem space into two, and work out if the middle point is good or bad.</li>
+<li>Repeat this a few times, and until you’ve honed in on the problem.</li>
+</ul>
+<ol start="3">
+<li>Software archaeology</li>
+</ol>
+<ul>
+<li>Determine a point in the near past of the codebase when this bug didn’t exist</li>
+<li>Step forward in time to determine which code change‐set caused the breakage</li>
+</ul>
+<ol start="4">
+<li>Test, Test, Test</li>
+</ol>
+<ul>
+<li>If your test suite does not exercise it, then you can’t believe it works</li>
+<li>Write a test harness to demonstrate the problem, and use this harness to prove that you’ve fixed it</li>
+</ul>
+<h3>Oblique Strategies</h3>
+<ol>
+<li>Take a break</li>
+<li>Explain it to someone else</li>
+</ol>
+<p>Consider if there are other related problems lurking in that section of code.
+Keep notes on which parts of the code harbour more faults. Devote time to those problem areas.</p>
+<h3>Non-Reproducible Bugs</h3>
+<ul>
+<li>Keep records of the factors that contribute to the fault to discover any patterns that may identify the common causes.</li>
+<li>Consider adding more logging and assertions</li>
+<li>Threaded code, network interaction, storage speed, memory corruption, global variables/singletons</li>
+</ul>
+<h2>Testing</h2>
+<h3>Types of Tests</h3>
+<ul>
+<li>Unit tests specifically exercise the smallest “units” of functionality in isolation, to ensure that they each function correctly.</li>
+<li>Integration tests inspect how individual units glue together and interoperate correctly.</li>
+<li>End-to-end tests run against the fully integrated software stack, and can be used as acceptance criteria for the project.</li>
+</ul>
+<h3>TDD cycle</h3>
+<ol>
+<li>Determine the next piece of functionality you need. Write a test for your new functionality.</li>
+<li>Implement that functionality, in the simplest way possible. You know that your functionally is in place when the test passes. As you code, you may run the test suite many times; these tests should run rapidly (each step adds a small new part of functionality, and therefore a small test).</li>
+<li>Tidy up the code. Refactor unpleasant commonality. Restructure the SUT (situation under test) to have a better internal structure.</li>
+<li>Repeat until you have written passing test cases for all of the required functionality.</li>
+</ol>
+<p>Inject the tests directly into the build process.</p>
+<h3>Characteristics of a good test</h3>
+<ul>
+<li>Short, clear name, so when it fails you can easily determine what the problem is</li>
+<li>Maintainable: easy to write, easy to read, easy to modify</li>
+<li>Runs quickly</li>
+<li>Up-to-date</li>
+<li>Runs without any prior machine configuration</li>
+<li>Does not depend on any other tests that have run before or after it; there is no reliance on external state, or on any shared variables in the code</li>
+<li>Tests the actual production code</li>
+</ul>
+<p>Arrange: preparation
+Act: perform an operation
+Assert: validate the result of that operation</p>
+<p>Aim for a single check—if you need to write multiple assertions then your test may not be performing
+a single test case.</p>
+<p>Ensure that your test suite covers the important functionality of your code.
+Consider the “normal” input cases, common “failure cases”, what happens at boundary values, including empty or zero state.</p>
+<p>Strong cohesion</p>
+<p>Cohesion is a measure of how related functionality is gathered together and how well the parts inside a module work as a whole. Cohesion is the glue holding a module together.</p>
+<p>Weakly cohesive modules are a sign of bad decomposition. Each module must have a clearly defined role, and not be a grab bag of unrelated functionality.</p>
+<p>Loose coupling
+Coupling is a measure of the interdependency between modules. In the simplest designs, modules have little coupling and so are less reliant on one another.</p>
+<p>Modules interconnect in many ways (directly or indirectly). A module can call functions on other modules or be called by other modules. It may use web services or facilities published by another module. It may use another module’s data types or share some data (perhaps variables or files).</p>
+<h2>Version Control</h2>
+<ul>
+<li>central collaboration hub for developers to work together</li>
+<li>requires code to be stored in the system before integrating</li>
+<li>maintains a history of the work on a project; archives the exact contents for each specific release; catalogues who changed each file and why</li>
+<li>central backup</li>
+<li>allows for experiments; can roll back if they don’t work</li>
+<li>Provides rhythm for work flow:
+make a change, test that it builds against the head of the repository, test that it works, check it in</li>
+<li>enables multiple concurrent streams of development to occur on the same codebase without interference</li>
+<li>enables reversibility: any change in the history of the project can be identified and reversed if it is found to be wrong</li>
+</ul>
+<p>Things to store
+• All source code files
+• All documentation
+• All build files (makefiles, IDE setup, scripts)
+• All configuration files
+• All assets (graphics, sounds, install media, resource files)
+• Any third-party–supplied files (e.g., code libraries you depend on, or DLLs from an outside company)</p>
+<p>Things not to store
+• Don’t store IDE configuration files or cache files.
+• Don’t store generated artefacts
+• Don’t store things that are not a part of your project
+• Don’t check in test or bug reports.
+• Don’t store project emails (add information to documentation).
+• Don’t store personal settings
+• Don’t keep things in the repository that you think you might need one day.</p>
+<p>The directory structure should be clear and reveal the shape of the code. Include a helpful “read me” document at the top level.</p>
+<p>Make small, atomic commits – little and often.</p>
+<ul>
+<li>Each commit must stand as an entire, individual step</li>
+<li>Don’t change code layout and functionality at the same time</li>
+</ul>
+<p>Commit message</p>
+<ul>
+<li>brief summary of what has changed, ideally one clear sentence.</li>
+<li>reasons why you made the change, if these are of interest.</li>
+<li>If appropriate, include a bug reference number or other supporting information</li>
+</ul>
+<p>Branches</p>
+<ul>
+<li>Encapsulating revisions of the source tree (e.g. each feature developed on its own branch)</li>
+<li>Exploratory development work</li>
+<li>Major changes that cut across a lot of the source tree and will take a while to complete, requiring many QA tests, and many individual check-ins to get right</li>
+<li>Individual bug fixes. Open a branch to work on a bug fix, test the work, and then merge the branch down once the fault has been closed.</li>
+<li>Separating volatile development from stable release lines.</li>
+</ul>
+<p>Note: A feature toggle is a configuration file that selectively enables or disables functionality in your software. It might be a run-time-parsed XML config file, or a set of compile-time pre-processor flags.</p>
+<p>http://martinfowler.com/bliki/TechnicalDebt.html</p>
+<h2>Release Process Outline</h2>
+<ol>
+<li>
+<p>Initiate the release
+Agree what the name and type of the release is</p>
+</li>
+<li>
+<p>Prepare the release
+Determine exactly what code will constitute this release.
+Tag the code in source control to record what is going into the release. The tag name must reflect the release name.</p>
+</li>
+<li>
+<p>Build the release
+Always build your software in a fresh checkout, from scratch. Never reuse old parts of a software build.
+Make your build as simple as a single step that automates all parts of the process. Use a scripting language to do this.</p>
+</li>
+<li>
+<p>Package the release
+Construct a set of “release notes” describing how the release differs from the previous release: the new features and the bugs that have been fixed. (Customers can see this).
+Package the code (create an installer image, CD ISO images, etc.). This step should also be part of the automated build script</p>
+</li>
+<li>
+<p>Deploy the release
+Store the generated artefacts and the build log for future reference. Put them on a shared file server.
+Test the release.
+Deploy the release.</p>
+</li>
+</ol>
+<p>New technology</p>
+<ul>
+<li>a new library</li>
+<li>an application framework</li>
+<li>a software tool</li>
+<li>how to use a new text editor or IDE</li>
+<li>a new documentation tool</li>
+<li>a test framework</li>
+<li>a new build system</li>
+<li>an issue tracking system</li>
+<li>a source control system</li>
+</ul>
+<p>New technical skills</p>
+<ul>
+<li>how to effectively read alien code</li>
+<li>how to write technical documentation</li>
+<li>how to architect software</li>
+</ul>
+<p>Challenges</p>
+<ul>
+<li>code katas (practice exercises)</li>
+<li>try solving a coding problem</li>
+<li>work on a personal project that will teach you something new</li>
+<li>try rewriting something on another platform or in another programming language</li>
+</ul>
+<h2>Questions to reflect on</h2>
+<p>Do I strive to write the simplest code possible? Or do I type what comes to mind, and not think about commonality, refactoring, or code design?</p>
+<p>Do you often copy code examples from books or websites into your work? How much effort do you invest in “sanitizing” the code for inclusion? Do you mercilessly update the layout, variable names, etc.? Do you add tests?</p>
+<ol>
+<li>Version control systems come with GUI and command-line tools. What are the pros and cons for each? Is it important to know how to use both? Why?</li>
+<li>What are the possible problems that distributed VCSs introduce over the simpler centralized model? How can you avoid these problems?</li>
+<li>Are you using the right version control system? What facilities does your current system lack that you have seen in an alternative VCS?</li>
+<li>Does using a version control system mean that you do not need to back up a personal development machine?</li>
+<li>Which is a safer mechanism for concurrent working: feature-toggles or concurrent branches? Which involves the least management and integration overhead?</li>
+<li>You are about to commit your changes to a repository and realize that you’ve worked on two separate things. Should you stop and rework the changeset, or just commit the code because you’ve done it already? Why? How do different VCS tools help this situation?</li>
+</ol>
+</article>
+  </body>
+</html>
