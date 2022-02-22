@@ -1,7 +1,6 @@
 {
   "name": "jamstastic",
   "version": "1.0.0",
-  "main": "vibe.js",
   "scripts": {
     "start": "eleventy --serve",
     "build": "eleventy"
