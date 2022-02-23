@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Philosophy of Software Design</title>
+    <link rel="stylesheet" href="/jamstastic/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>A Philosophy of Software Design</h1>
+<p>Source: A Philosophy of Software Design by John Ousterhout</p>
+<p><strong>Problem decomposition</strong></p>
+<ul>
+<li>Divide a complex problem into pieces that can be solved independently</li>
+</ul>
+<p><strong>Strategic programming</strong></p>
+<ul>
+<li>Great design, which also happens to work</li>
+<li>Solid codebase that facilitates future extensions</li>
+</ul>
+<h2>1. Understand the Pain Point</h2>
+<p>How will this provide value in people's lives?</p>
+<h2>2. Plan the Features</h2>
+<ul>
+<li>What features will this product offer? Will they help provide value?</li>
+<li>What sub-features will help design/implement the main features?</li>
+<li>What sub-features will help design/implement the sub-features?</li>
+</ul>
+<p>Visually organize the features/sub-features blueprint (UX design)</p>
+<h2>3. Build the Sub-Components</h2>
+<p>Write a step-by-step sequence of how sub-components will be built using code terminology.</p>
+<h3><strong>Design it twice</strong></h3>
+<p>Take a couple of alternative designs and pick the cleanest one instead of implementing the first idea that comes to mind.</p>
+<p>Each method should do one thing and do it completely.</p>
+<p>If a method needs to be split up, factor our a subtask. Both child and parent methods should be implemented without the need to understand each other's methods.</p>
+<p>Chose precise, unambiguous, and intuitive names for variables, methods, etc.</p>
+<p>Create an image</p>
+<ul>
+<li>Find a few words that capture the most important aspects</li>
+<li>If someone sees this name in isolation (no declaration, documentation, code), how closely will they be able to guess that the name refers to? Is there some other name that will paint a clearer picture?</li>
+</ul>
+<p>Boolean variable names should always be predicates</p>
+<ul>
+<li>
+<ol>
+<li>Define the class' interface. Sketch out a few of the most important methods. Pick approaches that are radically different from each other.</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>Make a list of pros and cons of each one. The interface should be easy to use for higher-level software.</li>
+</ol>
+<ul>
+<li>Does one alternative have a simpler interface than another?</li>
+<li>Is one interface more general-purpose than another?</li>
+<li>Does one interface enable a more efficient implementation that another?</li>
+</ul>
+</li>
+<li>
+<ol start="3">
+<li>Identify the best design (or combine multiple alternatives into a new one)</li>
+</ol>
+</li>
+</ul>
+<h2>4. Clean Up and Refactor</h2>
+<p>Bring pieces of code together if:</p>
+<ul>
+<li>information is shared</li>
+<li>it will simplify the interface</li>
+<li>it eliminates duplication (DRY)
+<ul>
+<li>If the repeated snippet is long, factor it into a spearate method (if the method has a simple signature)</li>
+<li>Refactor code so it only needs to be executed in one place</li>
+</ul>
+</li>
+<li>they are used together (bi-directional only)</li>
+<li>they overlap conceptually (a simple higher-level category includes both pieces of code)</li>
+<li>it's hard to understande one of the pieces of code without looking at the other</li>
+</ul>
+<h2>5. Design the Interface</h2>
+<p>Plan the most user-friendly way to display information to the user (wireframes, prototypes)</p>
+<h2>6. Start Writing Code</h2>
+<p>Write the comments first</p>
+<ul>
+<li>New class: write the class interface comment</li>
+<li>Write interface comments and signatures for the most important public methods (leave method bodies empty)</li>
+<li>Iterate until the basic structure feels right</li>
+<li>Write declarations and comments for the most important class instance variables in the class</li>
+<li>Fill in the bodies of the mthods, adding implementation comments as needed</li>
+<li>Additional methods: write the interface comment before the method body</li>
+<li>Additional instance variables: fill in the comment at the same time as the variable declaration is written</li>
+</ul>
+<hr>
+<h3>Comments</h3>
+<p>Comments capture information that was in the mind of the designer but couldn't be represented in the code.</p>
+<p>Comments should describe things that aren't obvious from the code</p>
+<ul>
+<li>Use different words in the comment from thsoe in the name of the entity being described. Pick words that provide additional information about the entity's meaning.</li>
+<li>A comment is worthless if someone who has never seen the code could write the code just by looking at the comment
+Decide on conventions for commenting</li>
+<li>What will be commented</li>
+<li>What format will be used for comments
+Comment maintenance</li>
+<li>Keep comments near the code they describe</li>
+<li>Avoid comment duplication; document each design decision only once</li>
+</ul>
+<h4>Lower-level comments</h4>
+<p>Lower-level comments add precision by clarifying the exact meaning of the code</p>
+<ul>
+<li>What are the units for this variable?</li>
+<li>Are the boundary conditions inclusive or exclusive?</li>
+<li>If a null value is permitted, what does it imply?</li>
+<li>If a variable refers to a resource that must eventually be freed or closed, who is responsible for freeing or closing it?</li>
+<li>Are there certain proteries that are always true for this variable?</li>
+</ul>
+<h4>Higher-level comments</h4>
+<p>Higher-level comments enhance intuition. They clarify how specific code statements relate to the overall goal</p>
+<ul>
+<li>What is this code trying to do? (Why is this code executed?)</li>
+<li>What is the simplest thing you can say that explains everything in the code?</li>
+<li>What is the most important thing about this code?</li>
+</ul>
+<h4>Interface comments</h4>
+<p>Interface comments provide information that someone needs to know in order to use a class or method</p>
+<ul>
+<li><strong>Class</strong>: the comment describes the overall abstracted provided</li>
+<li><strong>Method or function</strong>: the comment describes it soverall behaviour, its arguments and return value (if any), constraints on or dependencies between arguments, side effects (affects future behaviour of the system but is not part of the result) or exceptions it generates, and any other requirements (pre-conditions) the caller must satisfry before invoking the method.</li>
+</ul>
+</article>
+  </body>
+</html>
