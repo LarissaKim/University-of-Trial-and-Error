@@ -44,7 +44,7 @@
 <h3><strong>Design it twice</strong></h3>
 <p>Take a couple of alternative designs and pick the cleanest one instead of implementing the first idea that comes to mind.</p>
 <p>Each method should do one thing and do it completely.</p>
-<p>If a method needs to be split up, factor our a subtask. Both child and parent methods should be implemented without the need to understand each other's methods.</p>
+<p>If a method needs to be split up, factor out a subtask. Both child and parent methods should be implemented without the need to understand each other's methods.</p>
 <p>Chose precise, unambiguous, and intuitive names for variables, methods, etc.</p>
 <p>Create an image</p>
 <ul>
@@ -94,18 +94,18 @@
 <h2>6. Start Writing Code</h2>
 <p>Write the comments first</p>
 <ul>
-<li>New class: write the class interface comment</li>
+<li>New class: write the class <a href="#interface-comments">interface comment</a></li>
 <li>Write interface comments and signatures for the most important public methods (leave method bodies empty)</li>
 <li>Iterate until the basic structure feels right</li>
 <li>Write declarations and comments for the most important class instance variables in the class</li>
-<li>Fill in the bodies of the mthods, adding implementation comments as needed</li>
+<li>Fill in the bodies of the methods, adding <a href="#implementation-comments">implementation comments</a> as needed</li>
 <li>Additional methods: write the interface comment before the method body</li>
 <li>Additional instance variables: fill in the comment at the same time as the variable declaration is written</li>
 </ul>
 <hr>
-<h3>Comments</h3>
+<h2>Comments</h2>
 <p>Comments capture information that was in the mind of the designer but couldn't be represented in the code.</p>
-<p>Comments should describe things that aren't obvious from the code</p>
+<p>Comments should describe things that aren't obvious from the code.</p>
 <ul>
 <li>Use different words in the comment from thsoe in the name of the entity being described. Pick words that provide additional information about the entity's meaning.</li>
 <li>A comment is worthless if someone who has never seen the code could write the code just by looking at the comment
@@ -116,27 +116,132 @@ Comment maintenance</li>
 <li>Keep comments near the code they describe</li>
 <li>Avoid comment duplication; document each design decision only once</li>
 </ul>
-<h4>Lower-level comments</h4>
-<p>Lower-level comments add precision by clarifying the exact meaning of the code</p>
+<h3>Lower-level comments</h3>
+<p>Lower-level comments add precision by clarifying the exact meaning of the code.</p>
 <ul>
 <li>What are the units for this variable?</li>
 <li>Are the boundary conditions inclusive or exclusive?</li>
 <li>If a null value is permitted, what does it imply?</li>
 <li>If a variable refers to a resource that must eventually be freed or closed, who is responsible for freeing or closing it?</li>
-<li>Are there certain proteries that are always true for this variable?</li>
+<li>Are there certain properties that are always true for this variable?</li>
 </ul>
-<h4>Higher-level comments</h4>
-<p>Higher-level comments enhance intuition. They clarify how specific code statements relate to the overall goal</p>
+<h3>Higher-level comments</h3>
+<p>Higher-level comments enhance intuition. They clarify how specific code statements relate to the overall goal.</p>
 <ul>
 <li>What is this code trying to do? (Why is this code executed?)</li>
 <li>What is the simplest thing you can say that explains everything in the code?</li>
 <li>What is the most important thing about this code?</li>
 </ul>
-<h4>Interface comments</h4>
-<p>Interface comments provide information that someone needs to know in order to use a class or method</p>
+<h3>Interface comments</h3>
+<p>Interface comments provide information that someone needs to know in order to use a class or method.</p>
 <ul>
-<li><strong>Class</strong>: the comment describes the overall abstracted provided</li>
-<li><strong>Method or function</strong>: the comment describes it soverall behaviour, its arguments and return value (if any), constraints on or dependencies between arguments, side effects (affects future behaviour of the system but is not part of the result) or exceptions it generates, and any other requirements (pre-conditions) the caller must satisfry before invoking the method.</li>
+<li><strong>Class</strong>: the comment describes the overall abstraction provided</li>
+<li><strong>Method or function</strong>: the comment describes its overall behaviour, its arguments and return value (if any), constraints on or dependencies between arguments, side effects (affects future behaviour of the system but is not part of the result) or exceptions it generates, and any other requirements (pre-conditions) the caller must satisfy before invoking the method.</li>
+</ul>
+<h3>Implementation comments</h3>
+<p>Implementation comments describe what the code is doing, not how it's doing it. They are written inside a method or function.</p>
+<h3>Data structure member comments</h3>
+<p>Data structure member comments describe what a variable represents, not how it is manipulated in the code.</p>
+<h3>Cross-module comments</h3>
+<p>Cross-module comments describe dependencies that cross module boundaries.</p>
+<ul>
+<li>Allows for identification of all other places that must be modified if changes are made in that module</li>
+</ul>
+<h2>Exceptions</h2>
+<h3><em>Define errors out of existence</em></h3>
+<p>The normal behaviour of an operation handles all situations so thereis no exceptional condition to report</p>
+<h3>Mask exceptions</h3>
+<p>An exception condition is detected and handled at a low-level in the system so higher levels of software don't need to be aware of it</p>
+<h3>Exception aggregation</h3>
+<p>A single handler handles many exceptions</p>
+<h3>Application crash</h3>
+<p>Print diagnostic information then abort the application for errors that are difficult or impossible to handle and <em>don't occur very often</em></p>
+<h2>Testing</h2>
+<p>A successful test suite:</p>
+<ul>
+<li>is integrated into the development cycle</li>
+<li>targets only the most important parts of the codebase</li>
+<li>provides maximum value with minimum maintenance costs</li>
+</ul>
+<p>The cost of a unit test is determined by the amount of time spent on</p>
+<ul>
+<li>refactoring the test when you refactor the underlying code</li>
+<li>running the test on each code change</li>
+<li>dealing with false alarms raised by the test</li>
+<li>reading the test when trying to understand the behaviour of the underlying code</li>
+</ul>
+<h4>Foundational attributes of a good automated test</h4>
+<ul>
+<li>
+<p>Protection against regressions</p>
+<p>How good the test can detect bugs (regressions). The more code the test executes, the higher the chance it will reveal a bug.</p>
+</li>
+<li>
+<p>Resistance to refactoring</p>
+<p>How well a test can sustain code refactoring without producing a false positive</p>
+</li>
+<li>
+<p>Fast feedback: how quickly the test executes</p>
+</li>
+</ul>
+<h4>Black-box method</h4>
+<ul>
+<li>Examines the functionality of a system without knowing its internal structure</li>
+<li>Built around specifications and requirements (what the application is supposed to do)</li>
+</ul>
+<h4>White-box method</h4>
+<ul>
+<li>Verifies the application's inner workings</li>
+<li>Built around the source code</li>
+</ul>
+<p>User black-box testing methods when writing tests and white-box methods when analyzing the tests.</p>
+<p>Writing tests first makes sense when fixing bugs.</p>
+<ul>
+<li>Before fixing a bug, write a unit test that fails because of the bug.</li>
+<li>Fix the bug and make sure the unit test now passes.</li>
+</ul>
+<p>Name each test as if you were telling a story about the problem the code helps to solve. It should be cohesive and meaningful to a non-programmer who is familiar with the problem domain. Separate words in the test name by underscores, and don't include the name of the method under test in the test name.</p>
+<h4>AAA pattern</h4>
+<ul>
+<li><strong>Arrange</strong>: bring the system under test (SUT) and its dependencies to a desired state</li>
+<li><strong>Act</strong>: call the methods on the SUT, pass the prepared dependencies, and capture the output value (if any)</li>
+<li><strong>Assert</strong>: verify the outcome (the return value, final state of the SUT and its collaborators, methods called by SUT on those collaborators)</li>
+</ul>
+<h2>Consistency</h2>
+<p>Consistency creates cognitive leverage: once you learn how something is done in one place, you can use that knowledge to immediately understand other places that use the same approach.</p>
+<ul>
+<li>Create a document that lists the most important overall conventions (e.g., coding style guidelines)</li>
+<li>Enforce by using a tool that checks for violations and make sure code can't be commited to the repo unless it passes the checker</li>
+<li>Enforce with code reviews</li>
+</ul>
+<h2>Complexity</h2>
+<p>Complexity is anything that makes it hard to understand and modify the structure of a system.</p>
+<h3>Symptoms</h3>
+<p><strong>Change amplification</strong></p>
+<ul>
+<li>a simple change requires code modifications in many different places</li>
+</ul>
+<p><strong>Cognitive load</strong></p>
+<ul>
+<li>how much a developer needs to know in order to complete a task</li>
+</ul>
+<p><strong>Unknown unknowns</strong></p>
+<ul>
+<li>it is unclear what code needs to be modified, or what information must be considered in order to make those modifications</li>
+</ul>
+<h3>Causes</h3>
+<p><strong>Dependencies</strong></p>
+<ul>
+<li>when a given piece of code can’t be understood and modified in isolation; the code relates in some way to other code, and the other code must be considered and/or modified if the given code if changed</li>
+</ul>
+<p><strong>Obscurity</strong></p>
+<ul>
+<li>when important information is not obvious</li>
+</ul>
+<h3>Solutions</h3>
+<ul>
+<li>Making code simpler and more obvious (e.g. eliminate special cases, use identifiers consistently)</li>
+<li>Encapsulation/modular design (i.e. work can be done on one module without having to understand other modules)</li>
 </ul>
 </article>
   </body>
