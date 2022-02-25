@@ -21,25 +21,64 @@
     
 <article><h1>How to Design Programs</h1>
 <p>Source: <a href="https://htdp.org/2018-01-06/Book/index.html">How to Design Programs</a></p>
-<h2>From Problem Analysis to Data Definitions</h2>
+<p>Good programming is about systematically solving problems and conveying the system within the code. Programmers create programs for other people to read in the future. A good program reflects the problem statements and their important concepts. It comes with a concise self-description. Examples illustrate this description and relate it back to the problem. The examples ensure that the future reader knows why and how the code works.</p>
+<h3>Designing Functions</h3>
+<p>Start with the connection between data and information; how to represent the relevant pieces of information as data and how to interpret data as information.</p>
+<h3>Data definition</h3>
+<p>A collection of data (class) represented by a meaningful word; informs readers how to create elements of this class and how to decide whether a piece of data belongs to the collection.</p>
+<hr>
+<h2>Design Process</h2>
+<h3>From Problem Analysis to Data Definitions</h3>
 <p>Identify the information that must be represented and how it is represented in the chosen programming language. Formulate data definitions and illustrate them with examples.</p>
-<h2>Signature, Purpose Statement, Header</h2>
-<p>State what kind of data the function consumes and produces. Formulate a concise answer to the question: &quot;What does this function compute?&quot; Define a stub that lives up to the signature.</p>
-<h2>Functional Examples</h2>
-<p>Work through the examples to illustrate the function's purpose.</p>
-<h2>Function Template</h2>
-<p>Translate the data definitions into an outline of the function.</p>
-<h2>Function Definition</h2>
+<blockquote>
+<p>A Temperature is a Number. Interpretation represents Celcius degrees.</p>
+</blockquote>
+<h3>Signature, Purpose Statement, Header</h3>
+<p><strong>Signature</strong>: a comment that tells the reader how many inputs the function consumes, from which classes they are drawn, and that kind of data it produces.</p>
+<p><strong>Purpose Statement</strong>: a comment that summarizes the purpose of the function (shortest possible answer to: &quot;What does this function compute?&quot;)</p>
+<ul>
+<li>One purpose statement for the reader who may have to modify the code</li>
+<li>One purpose statement for the person who wishes to use the program but not read it</li>
+</ul>
+<p><strong>Header</strong>: a simplistic function definition</p>
+<ul>
+<li>One variable name fo each class of input in the signature</li>
+<li>Body of the function can be any piece of data from the output class</li>
+</ul>
+<h3>Functional Examples</h3>
+<p>Illustrate the function's purpose with examples.</p>
+<ul>
+<li>Pick one piece of data from each input class from the signature and determine what you expect back.</li>
+<li>If a class has a finite range, pick examples from the range boundaries and from its interior.</li>
+</ul>
+<h3>Function Template</h3>
+<p>Express the data definitions for the input(s) as a mix of English and programming language to create an outline for the function.</p>
+<ul>
+<li>
+<p>Does the data definition distinguish among different sub-classes of data?</p>
+<p>The template needs as many conditional clauses as sub-classes.</p>
+</li>
+<li>
+<p>How do the sub-classes differ from each other?</p>
+<p>Use the differences to formulate a condition per clause.</p>
+</li>
+<li>
+<p>Do any of the clauses deal with structured values?</p>
+<p>Add appropriate selector expressions to the clause.</p>
+</li>
+</ul>
+<h3>Function Definition</h3>
 <ul>
 <li>Function name</li>
-<li>Parameter
-Fill in the gaps in the function template. Exploit the purpose statement and the examples.</li>
+<li>Parameter: function input (unknown until function is applied)</li>
+<li>Expression (body): computes the output of the function for a specific input</li>
 </ul>
-<h2>Testing</h2>
+<h3>Testing</h3>
 <p>Articulate the examples as tests and ensure that the function passes all. Doing so discovers mistakes. Tests also supplement examples; they help others read and understand the definition when the need arises.</p>
-<p>Iterative Refinement: stripping away all inessential details at first and finding a solution for the remaining core problem</p>
+<hr>
+<p><strong>Iterative Refinement</strong>: stripping away all inessential details at first and finding a solution for the remaining core problem.</p>
 <ul>
-<li>A refinement step adds in one of these omitted detaisla and resolves the expanded problem, using the existing solution as much as possible</li>
+<li>A refinement step adds in one of these omitted details and resolves the expanded problem, using the existing solution as much as possible</li>
 <li>An interation (repetition) of these refinement steps eventually leads to a complete solution</li>
 </ul>
 </article>
