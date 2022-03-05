@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Build APIs You Won&#39;t Hate</title>
+    <link rel="stylesheet" href="/jamstastic/css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <a href="/jamstastic/">
+        For you
+      </a>
+        | 
+      <a href="/jamstastic/about">
+        About this page for you
+      </a>
+    </header>
+    
+<article><h1>Build APIs You Won't Hate</h1>
+<p>Source: Build APIs You Won't Hate by Phil Sturgeon</p>
+<p><strong>Table of Contents</strong></p>
+<ul>
+<li><a href="#database-seeding">Database Seeding</a></li>
+<li><a href="#plan-and-create-endpoints">Plan and Create Endpoints</a></li>
+<li><a href="#input-and-output-theory">Input and Output Theory</a></li>
+<li><a href="#status-codes-errors-and-messages">Status Codes, Errors, and Messages</a></li>
+<li><a href="#endpoint-testing">Endpoint Testing</a></li>
+<li><a href="#outputting-data">Outputting Data</a></li>
+<li><a href="#data-relationships">Data Relationships</a></li>
+<li><a href="#authentication">Authentication</a></li>
+<li><a href="#pagination">Pagination</a></li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#hateos">HATEOS</a></li>
+<li><a href="#api-versioning">API Versioning</a></li>
+<li><a href="#additional-resources">Additional Resources</a></li>
+</ul>
+<h2>Database Seeding</h2>
+<p>Populate (&quot;seed&quot;) a database with fake data using a script. Fake data should be nonesense of the correct data type, size, and format.</p>
+<p>Seeders should be grouped logically. One seeder should be used to create data that relates to each other (e.g. users, auth tokens, friendships)</p>
+<h2>Plan and Create Endpoints</h2>
+<h3>Functional Requirements</h3>
+<ol>
+<li>Make an (extensive) list of <em>everything</em> the API needs to handle.</li>
+<li>Make a list of actions (not every action may need its own endpoint).</li>
+</ol>
+<p>Example: Places</p>
+<ul>
+<li>Create</li>
+<li>Read</li>
+<li>Update</li>
+<li>Delete</li>
+<li>List (lat, lon, distance or box) <em>&lt;- query filter params</em></li>
+<li>Image <em>API will accept (single) image upload</em></li>
+</ul>
+<ol start="3">
+<li>Turn the actions into actual endpoints.</li>
+</ol>
+<h3>Endpoint Theory</h3>
+<h4>GET Resources</h4>
+<ul>
+<li><code>GET /resources</code> - paginated list of stuff in a default order logical for that specific data</li>
+<li><code>GET /resource/X</code> - single entity <code>X</code>; can be ID, hash, slug, username, anything that uniquely identifies that &quot;resource&quot;</li>
+<li><code>GET /resource/X, Y, Z</code> - multiple &quot;resources&quot; as requested by the client</li>
+</ul>
+<p><strong>Sub-resources</strong></p>
+<ul>
+<li><code>GET /places/X/checkins</code> - Find all checkins for place <code>X</code></li>
+<li><code>GET /users/X/checkins</code> - Find all checkins for user <code>X</code></li>
+<li><s><code>GET /users/X/checkins/Y</code> - Find checkin <code>Y</code> for user <code>X</code></s> -&gt; prefers <code>GET /checkins/X</code></li>
+</ul>
+<blockquote>
+<p><strong>Auto-Increment is the Devil</strong></p>
+</blockquote>
+<ul>
+<li>shows how many resources exist</li>
+<li>use unique identifiers instead</li>
+</ul>
+<h4>DELETE Resources</h4>
+<ul>
+<li><code>DELETE /places/X</code> - Delete place <code>X</code></li>
+<li><code>DELETE /places/X, Y, Z</code> - multiple places deleted</li>
+<li><code>DELETE /places</code> - deletes all places <em>NOTE: potentially dangerous, consider skipping</em></li>
+<li><code>DELETE /places/X/image</code> - delete image for place <code>X</code>, or:</li>
+<li><code>DELETE /places/X/images</code> - to delete all images for place <code>X</code></li>
+</ul>
+<h4>POST/PUT</h4>
+<p><code>PUT</code> is generally used if the entire URL is known beforehand and the action is idempotent (returns same result regardless how many times its repeated)</p>
+<p><code>POST</code> is generally used for actions that aren't idempotent.</p>
+<p>Example: User settings</p>
+<p><code>POST /me/settings</code>: allows specific fields to be posted one at a time
+<code>PUT /me/settings</code>: requires the entire body of settings</p>
+<p>Example: Image upload</p>
+<p><code>PUT /places/1/image</code>: creates one image for a place; new attempt overrides existing image
+<code>POST /places/1/images</code>: allows for multiple images; multiple attempts result in different images</p>
+<p><strong>Plural, Singular, Both?</strong></p>
+<p>Plural for everything is recommended.</p>
+<ul>
+<li><code>/places</code> - expected to return a collection of places</li>
+<li><code>/places/45</code> - expected to return places 45</li>
+<li><code>/places/45/checkins</code> - expected to return checkins for places 45</li>
+<li><code>/places/45/checkins/91</code> - expected to return checkins 91 for places 45</li>
+<li><code>/checkins/91</code> - expected to return checkins 91</li>
+</ul>
+<p><strong>Verb or Noun?</strong></p>
+<p>Nouns are recommended. Resources are &quot;things&quot; (noun) and a URL becomes the &quot;place&quot; (also noun) on the Internet where a &quot;thing&quot; lives. Nouns also allow multiple HTTP actions to be made to the identical URL:</p>
+<ul>
+<li><code>GET /users/janesmith/messages</code></li>
+<li><code>PATCH /users/janesmith/messages/xdWRwerG</code></li>
+<li><code>DELETE /users/janesmith/messages/xdWRwerG</code></li>
+</ul>
+<h3>Planning Endpoints</h3>
+<h4>Controllers</h4>
+<p>Create a controller for each type of resource. Sub-resources could be methods in the resource's controller or their own controller.</p>
+<h4>Routes</h4>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Endpoint</th>
+<th>Route</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td><code>POST /users</code></td>
+<td><code>Route::post('users', 'UsersController@create')</code></td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>GET /users/X</code></td>
+<td><code>Route::get('users/{id}', 'UsersController@show')</code></td>
+</tr>
+<tr>
+<td>Update</td>
+<td><code>PUT /users/X</code></td>
+<td><code>Route::put('users/{id}', 'UsersController@update')</code></td>
+</tr>
+<tr>
+<td>Delete</td>
+<td><code>DELETE /users/X</code></td>
+<td><code>Route::delete('users/{id}', 'UsersController@delete')</code></td>
+</tr>
+<tr>
+<td>List</td>
+<td><code>GET /users</code></td>
+<td><code>Route::get('users', 'UsersController@list')</code></td>
+</tr>
+<tr>
+<td>Image</td>
+<td><code>PUT /users/X/image</code></td>
+<td><code>Route::put('users/{id}/image', 'UsersController@uploadImage')</code></td>
+</tr>
+<tr>
+<td>Favourites</td>
+<td><code>GET /users/X/favourites</code></td>
+<td><code>Route::get('users/{id}/favourites', 'UsersController@favourites')</code></td>
+</tr>
+<tr>
+<td>Checkins</td>
+<td><code>GET /users/X/checkins</code></td>
+<td><code>Route::get('users/{id}/checkins', 'CheckinsController@index')</code></td>
+</tr>
+</tbody>
+</table>
+<p>You don't want multiple endpoints using copy-paste logic to do the same things because it's frustrating to have different endpoints that provide the same resource but in a slighly different format.</p>
+<h4>Methods</h4>
+<p>Implement the routes as methods in their respective controllers. Make all, except one, empty. Test the output of the non-empty method as a smoke-test.</p>
+<h2>Input and Output Theory</h2>
+<h3>Requests</h3>
+<p>Input is just an HTTP request:</p>
+<pre><code>POST /momens/1/gift HTTP /1.1 // requested URL path and HTTP version
+Host: api.example.com // host name
+Authorization: Bearer vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1 // auth part of header
+Content-Type: application/json // indicates type of content being sent in body
+
+{ &quot;user_id&quot; : 2 }
+</code></pre>
+<p>Making an HTTP Request with Python</p>
+<pre><code class="language-python">import requests
+
+headers = {
+  'Authorization': 'Bearer vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1',
+  'Content-Type': 'application/json',
+}
+
+payload = {
+  'user_id': 2
+}
+
+req = requests.post('http://api.example.com/moments/1/gift', data=json.dumps(payload), headers=headers)
+</code></pre>
+<p>Making an HTTP Request with JavaScript</p>
+<pre><code class="language-js">const headers = new Headers({
+  Authorization: 'Bearer vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1',
+  'Content-Type': 'application/json',
+});
+
+const payload = {
+  user_id: 2,
+};
+
+const req = await fetch('http://api.example.com/moments/1/gift', {
+  method: 'POST',
+  headers,
+  body: JSON.stringify(payload, null, 2),
+});
+</code></pre>
+<h3>Responses</h3>
+<pre><code>HTTP/1.1 200 OK // status code
+Server: nginx
+Content-Type: application/json
+Connection: close
+Cache-Control: no-cache, private // caching is not ok
+Date: Fri, 22 Nov 2013 16:37:57 GMT
+Transfer-Encoding: Identity
+
+ {&quot;id&quot;:1690,&quot;is_gift&quot;:true,&quot;user&quot;:{&quot;id&quot;:1,&quot;name&quot;:&quot;Theron Weissnat&quot;,&quot;bio&quot;:&quot;Occaecati exceptu\
+ ri magni odio distinctio dolores illum voluptas voluptatem in repellendus eum enim &quot;,&quot;gend\
+ er&quot;:&quot;female&quot;,&quot;picture_url&quot;:&quot;https:\/\/si0.twimg.com\/profile_images\/711293289\/hhdl-twitt\
+ er_normal.png&quot;,&quot;cover_url&quot;:null,&quot;location&quot;:null,&quot;timezone&quot;:-1,&quot;birthday&quot;:&quot;1989-09-17 16:27\
+ :36&quot;,&quot;status&quot;:&quot;available&quot;,&quot;created_at&quot;:&quot;2013-11-22 16:37:57&quot;,&quot;redeem_by&quot;:&quot;2013-12-22 16:37\
+ :57&quot;}
+</code></pre>
+<h3>Supporting Formats</h3>
+<h4>No Form Data</h4>
+<p>Sending data as <code>application/x-www-form-urlencoded</code> not recommended for various reasons, including the fact that data-types are not preserved (everything becomes a <code>string</code>) and readability suffers:</p>
+<pre><code>POST /checkins HTTP/1.1
+Host: api.example.com
+Authorization: Bearer vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1
+Content-Type: application/x-www-form-urlencoded
+
+checkin[place_id]=1&amp;checkin[message]=This is a bunch of text&amp;checkin[with_friends][]=1&amp;che\
+ckin[with_friends][]=2&amp;checkin[with_friends][]=3&amp;checkin[with_friends][]=4&amp;checkin[with_fr\
+iends][]=5
+</code></pre>
+<h4>JSON and XML</h4>
+<p>Understand what format(s) are actually needed and use those. (JSON preferred)</p>
+<h3>Content Structure</h3>
+<p><strong>JSON API</strong> format suggests using plural keys for both single item and collection resources:</p>
+<pre><code class="language-json">{
+  &quot;posts&quot;: [
+    {
+      &quot;id&quot;: &quot;1&quot;,
+      &quot;title&quot;: &quot;Rails is Omakase&quot;
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Consistent response, <em>always</em> has same structure</td>
+<td>- RESTful/Data utilities may &quot;freak&quot; about array of single responses</td>
+</tr>
+<tr>
+<td></td>
+<td>- Potentially confusing to humans</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Twitter-style</strong> format returns a single object for a single item:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+  &quot;id&quot;: &quot;511501255&quot;
+}
+</code></pre>
+<p>and an array of objects for collection resources:</p>
+<pre><code class="language-json">[
+  {
+    &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+    &quot;id&quot;: &quot;511501255&quot;
+  },
+  {
+    &quot;name&quot;: &quot;Hulk Hogan&quot;,
+    &quot;id&quot;: &quot;100002&quot;
+  }
+]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Minimalistic response</td>
+<td>- No space for pagination, meta data</td>
+</tr>
+<tr>
+<td>- Widespread comprehension by frameworks/utilities</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Facebook-style</strong> format returns a single object for a single item:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+  &quot;id&quot;: &quot;511501255&quot;
+}
+</code></pre>
+<p>and an array of objects for collection resources, but namespaced:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+      &quot;id&quot;: &quot;511501255&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Hulk Hogan&quot;,
+      &quot;id&quot;: &quot;100002&quot;
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Space for pagination, meta data<br>- Response still simplistic</td>
+<td>- Need to embed meta data in single item resources</td>
+</tr>
+<tr>
+<td>- Response still simplistic</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>&quot;<strong>Much Namespace, Nice Output</strong>&quot; format returns a namespaced single item:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: {
+    &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+    &quot;id&quot;: &quot;511501255&quot;,
+    &quot;comments&quot;: {
+      &quot;data&quot;: [
+        {
+          &quot;id&quot;: 123423,
+          &quot;text&quot;: &quot;MongoDB is web-scale!&quot;
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>and namespaced collection resources:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;name&quot;: &quot;Phil Sturgeon&quot;,
+      &quot;id&quot;: &quot;511501255&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Hulk Hogan&quot;,
+      &quot;id&quot;: &quot;100002&quot;
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Space for pagination, meta data (both collection and single item)</td>
+<td></td>
+</tr>
+<tr>
+<td>- Response still simplistic</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Status Codes, Errors, and Messages</h2>
+<h3>HTTP Status Codes</h3>
+<p><strong>2xx: Success</strong>
+The client has been successful up to the point the response was sent.</p>
+<p><strong>3xx: Redirect</strong>
+The calling application is being sent somewhere else for the actual resource.</p>
+<p><strong>4xx: Client Error</strong>
+The client has something invalid and needs to fix the request before resending it.</p>
+<p><strong>5xx: Server-side Error</strong>
+Something server-side went wrong. The client may/not retry the request.</p>
+<p>Example status code usage:</p>
+<ul>
+<li>200 - Generic everything OK</li>
+<li>201 - Created something OK</li>
+<li>202 - Accepted but being process async (e.g. encoding video, resizing image)</li>
+<li>400 - Bad Request (invalid syntax)</li>
+<li>401 - Unauthorized (no current user and there should be)</li>
+<li>403 - Forbidden (current user not allows to access the requested data)</li>
+<li>404 - Invalid URL route or item resource doesn't exist</li>
+<li>405 - Method Not Allowed</li>
+<li>410 - Data has been deleted, deactivated, suspended, etc.</li>
+<li>500 - Something unexpected happened and the API is at fault</li>
+<li>503 - API is not here right now, please try again later</li>
+</ul>
+<h3>Error Codes and Error Messages</h3>
+<p><strong>Error codes</strong> are a string or integer that corresponds to a human-readable <strong>error message</strong> with more information about what is going wrong (specific to application).</p>
+<p>Twitter error code examples:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Text</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>161</td>
+<td>You are unable to follow more people at this time</td>
+<td>Corresponds with HTTP 403 - thrown when a user cannot follow another user due to some kind of limit</td>
+</tr>
+<tr>
+<td>179</td>
+<td>Sorry, you are not authorized to see this status</td>
+<td>Corresponds with HTTP 403 - thrown when a Tweet cannot be viewed by the authenticating user, usually due to the tweet's author having protected their tweets</td>
+</tr>
+</tbody>
+</table>
+<h3>Common Pitfalls</h3>
+<h4>200 OK and Error Code</h4>
+<blockquote>
+<p>If you return a HTTP status code of 200 with an error code then Chuck Norris will roundhouse your door in, destroy your computer, instantly 35-pass wipe your backups, cancel your Dropbox account and block you from GitHub.</p>
+</blockquote>
+<h4>Non-Existent, Gone, or Hiding?</h4>
+<p>&quot;Never existed&quot;, &quot;no longer exists&quot;, &quot;you can't view it&quot;, and &quot;it is deactivated&quot; should be split into 404, 403, 410 rather than all clumped as 404.</p>
+<p>Is the 403 error because the user does not have sufficient authorization? Should the client suggest an account update? Is it because the user is not &quot;friends&quot; with the author of the content they are trying to view? Should the client suggest adding them as a friend?</p>
+<p>Is the 410 error because the user deleted the entire piece of content or because they deleted their entire account?</p>
+<p>Complement HTTP status codes with an error code that is unique within the API and is documented somewhere.</p>
+<h2>Endpoint Testing</h2>
+<ul>
+<li>When URL X is requested, the API should response with resource Y</li>
+<li>When JSON A is sent to the API, it should a) accept it, or b) freak out</li>
+</ul>
+<p>Group various tests together as &quot;features&quot;; each &quot;resource&quot; and &quot;sub-resource&quot; should be its own &quot;feature&quot; (e.g. <code>/places</code> and <code>/places/X</code> are one feature but <code>/places/X/checkins</code> is a separate feature).</p>
+<p>Each endpoint should have its own &quot;Scenario&quot; (Gherkin syntax). Think of the &quot;guard clauses&quot; that the endpoints will need, then make a “Scenario” for each of those:</p>
+<pre>
+<b>Feature</b>: Places
+
+<b>Scenario</b>: Finding a specific place
+  When I request "GET /places/1"
+  Then I <b>get</b> a "200" response
+  And scope into the "data" property
+    And the properties exist:
+      """
+      id
+      name
+      lat
+      lon
+      address1
+      address2
+      city
+      state
+      zip
+      website
+      phone
+      """
+    And the "id" property is an integer
+
+<b>Scenario</b>: Searching non-existent places
+When I request "GET /places?q=nonexistent place"
+Then I <b>get</b> a "200" response
+And the "data" property contains 0 items
+</pre>
+<h3>TDD</h3>
+<p>Understanding the action plan, what the endpoints should be, and what their output should look like will help with building and testing endpoints one at a time.</p>
+<h2>Outputting Data</h2>
+<h3>Direct Approach</h3>
+<p>Data from the database should not be directly passed as output.</p>
+<ul>
+<li>Performance: returning &quot;all&quot; items is not ideal when there's thousands or more records</li>
+<li>Display: may not be the desired data-type</li>
+<li>Security: can potentially expose sensitive information</li>
+<li>Stability: changes WILL be made in the database, which will cause the behaviour of the API to suffer</li>
+</ul>
+<p>Data from the database should not be directly type-casted and formatted for output.</p>
+<ul>
+<li>Performance: still not solved (requires pagination)</li>
+<li><s>Display: data-types are now correct</s></li>
+<li><s>Security: this is also handled</s></li>
+<li><s>Stability: so is this</s></li>
+<li>But this is &quot;icky&quot;</li>
+</ul>
+<p>A better approach would be to have a function that &quot;transforms&quot; the resource to the appropriate JSON format:</p>
+<pre><code class="language-js">function transformPlaceToJson(place) {
+  const place = {
+    id: parseInt(place.id),
+    name: place.name,
+    lat: parseFloat(place.lat),
+    lon: parseFloat(place.lon),
+    createdAt: place.created_at.toString(),
+  };
+
+  return JSON.stringify(place);
+}
+</code></pre>
+<h3>Transformations</h3>
+<p>The ideal approach would be to have a separate controllers (&quot;Transformers&quot;) with just the transform method(s) for that resource:</p>
+<pre><code class="language-js">class PlaceTransformer {
+  // Turn place item into a generic object
+  static transform(place) {
+    const place = {
+      id: parseInt(place.id),
+      name: place.name,
+      lat: parseFloat(place.lat),
+      lon: parseFloat(place.lon),
+      address1: place.address1,
+      address2: place.address2,
+      city: place.city,
+      state: place.state,
+      zip: parseFloat(place.zip),
+      website: place.website,
+      phone: place.phone,
+    };
+
+    return JSON.stringify(place);
+  }
+}
+</code></pre>
+<h3>Hiding Schema Updates</h3>
+<p>Changing the internal data structure while keeping the external field name the same maintains control over stability for client applications.</p>
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>website: place.website;</code></td>
+<td><code>website: place.url;</code></td>
+</tr>
+<tr>
+<td><code>status: place.status;</code></td>
+<td><code>status: place.status === 'available' ? 'active' : place.status;</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Outputting Errors</h3>
+<p>Have an API Controller with convenience methods that handle simple error codes and responses.</p>
+<pre><code>
+Add code example here
+
+</code></pre>
+<h2>Data Relationships</h2>
+<p>RESTful relationships are usually similar to database relationships, but may have extra dynamic relationships or not include all relationships from the database. The output should be based on the &quot;desire of the recipient&quot; (<a href="http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm#sec_5_2">Roy Fielding</a>).</p>
+<h3>Sub-resources</h3>
+<p>Related data can be expressed as a new URL for API consumers.</p>
+<p>However, this results in an extra HTTP request. It also assumes the only related data is that single sub-resource when there could be many, which results in even more HTTP requests.</p>
+<p>If you try to put as much data as possible into one request, the user may end up downloading huge files with information they don't want or need.</p>
+<p>Only using sub-resources to load related data restricts an API's ability to be flexible for its consumers.</p>
+<h3>🟠 Foreign Key Arrays</h3>
+<p>Ids for the related data are included in the resource:</p>
+<pre><code class="language-json">{
+  &quot;post&quot;: {
+    &quot;id&quot;: 1,
+    &quot;title&quot;: &quot;Progressive Enhancement is Dead&quot;,
+    &quot;comments&quot;: [&quot;1&quot;, &quot;2&quot;],
+    &quot;_links&quot;: {
+      &quot;user&quot;: &quot;/people/tomdale&quot;
+    }
+  }
+}
+</code></pre>
+<p>allowing for a grouped request for the subresource(s) (e.g., <code>/comments?ids=1,2</code>, <code>/people/tomdale</code>). However, the API consumer has to stitch the data together, which could be a lot of work for a large dataset.</p>
+<h3>🟢 Embedded Documents (Nesting)</h3>
+<p>An API consumer can choose which subresources to include by calling a URL such as <code>/placed?embed=checkins,merchant</code> and receive that data in the response inside the resource:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    {
+      &quot;id&quot;: 2,
+      &quot;name&quot;: &quot;Videology&quot;,
+      &quot;lat&quot;: 40.713857,
+      &quot;lon&quot;: -73.961936,
+      &quot;created_at&quot;: &quot;2013-04-02&quot;,
+      &quot;checkins&quot;: [
+        // ...
+      ],
+      &quot;merchant&quot;: {
+        // ...
+      }
+    }
+    // ...
+  ]
+}
+</code></pre>
+<h2>Authentication</h2>
+<h3>When is Authentication Useful?</h3>
+<ul>
+<li>tracking users</li>
+<li>giving endpoints user-context</li>
+<li>limit user access to endpoints</li>
+<li>filter data</li>
+<li>throttle or deactive accounts</li>
+</ul>
+<p><strong>Read-only APIs</strong> with data that is not sensitive could be made freely available without requiring authentication. Authentication could be implemented to limit DDoS attacks (valid authentication required to get response from the API; account gets throttled or deactivated if malicious activity detected). Additional security barriers (e.g. self-improving firewall) could also be implemented for stronger defense.</p>
+<p><strong>Internal APIs</strong> that run on a private network or are locked with firewall rules could also be made available without authentication. However, if the network has security issues, havoc will be wreaked when the network gets breached.</p>
+<h3>Different Approached to Authentication</h3>
+<h4>❌ Basic</h4>
+<p>A username/password approach implemented on the HTTP request level and respected by browser (no cookies, session identifier, login pages).</p>
+<p>Example HTTP request header:</p>
+<p><code>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==</code></p>
+<pre><code class="language-php">$ php -a
+php &gt; echo base64_decode('QWxhZGRpbjpvcGVuIHNlc2FtZQ==');
+Aladin:open sesame
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Easy to implement</td>
+<td>- Ludicrously insecure over HTTP</td>
+</tr>
+<tr>
+<td>- Easy to understand</td>
+<td>- Fairly insecure over HTTPS</td>
+</tr>
+<tr>
+<td>- Works in the browser and any other HTTP client</td>
+<td>- Passwords can be stored by the browser :honey_pot::bee:</td>
+</tr>
+</tbody>
+</table>
+<h4>❌ Digest</h4>
+<p>An improvement on Basic authentication, it transmits passwords as a MD5 hash instead of plain-text.</p>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Password is not transmitted in plain text</td>
+<td>- Harder than basic auth to implement <strong>well</strong></td>
+</tr>
+<tr>
+<td>- <code>nonce</code> negates rainbow table attacks</td>
+<td>- Easy to implement badly</td>
+</tr>
+<tr>
+<td>- Generally more secure then basic auth</td>
+<td>- Still insecure over HTTP</td>
+</tr>
+<tr>
+<td>- Easier to implement that some approaches</td>
+<td>- Passwords can still be stored by the browser :honey_pot::bee:</td>
+</tr>
+<tr>
+<td></td>
+<td>- Uses MD5 (...4...3...2...1...<strong><em>HACKED</em></strong>!)</td>
+</tr>
+</tbody>
+</table>
+<h4>❌ OAuth 1.0a</h4>
+<p>A third-party (smartphone app, other website, CMS, etc.) could redirect a user to an integrated service (e.g. social network platform) that would authenticate the user via a web-based HTML login form on their website then redirect them back to the third-party along with a special token (&quot;OAuth Token&quot;, &quot;OAuth Token Secret&quot;). The third-party wouldn't need to save a password.</p>
+<p>Example HTTP request:</p>
+<pre><code>POST /moments/1/gift HTTP/1.1
+Host: api.example.com
+Authorization: OAuth realm=&quot;http://sp.example.com/&quot;,
+oauth_consumer_key=&quot;0685bd9184jfhq22&quot;,
+oauth_token=&quot;ad180jjd733klru7&quot;,
+oauth_signature_method=&quot;HMAC-SHA1&quot;,
+oauth_signature=&quot;wOJIO9A2W5mFwDgiDvZbTSMK%2FPY%3D&quot;,
+oauth_timestamp=&quot;137131200&quot;,
+oauth_nonce=&quot;4572616e48616d6d65724c61686176&quot;,
+oauth_version=&quot;1.0&quot;
+Content-Type: application/json
+
+{ &quot;user_id&quot; : 2 }
+
+</code></pre>
+<p>😵🤯</p>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Super secure, even without SSL</td>
+<td>- Complicated to interact with</td>
+</tr>
+<tr>
+<td>- Doesn't send username/password in every request</td>
+<td>- Limited number of ways to grant access</td>
+</tr>
+<tr>
+<td>- No username/password stored on third-party applications</td>
+<td>- Tokens never changed</td>
+</tr>
+<tr>
+<td>- Attacker with OAuth Token/Secret shouldn't be able to change password</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4>✔️ OAuth 2.0</h4>
+<p>User gets an access token that expires and needs to be &quot;refreshed&quot;. OAuth 2.0 is good for most situations, provided that you <strong>use SSL</strong> and implement a <strong>well-tested</strong>, existing solution for your OAuth 2.0 server.</p>
+<p>Example HTTP request:</p>
+<pre><code>POST /momens/1/gift HTTP /1.1
+Host: api.example.com
+Authorization: Bearer vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1 // OAuth 2.0 Access Token
+Content-Type: application/json
+
+{ &quot;user_id&quot; : 2 }
+</code></pre>
+<h4>Other Approaches</h4>
+<ul>
+<li>OpenID - https://openid.net/</li>
+<li>Hawk - https://github.com/hueniverse/hawk</li>
+<li>Oz - https://github.com/hueniverse/oz</li>
+</ul>
+<h3>Where the OAuth 2.0 Server Lives</h3>
+<p>An OAuth server usually has a web interface (with HTML forms, form validation, static resources, etc.). This would make it better suited to be placed on the website if it has a separate server from the API. The only thing the API needs is an Access Token (as a header) so it can find the datastore that contains the access tokens, validate it, then get the user associated with the token for use throughout the API code. Ideally, everything should be implemented autonomously.</p>
+<h3>Understanding OAuth 2.0 Grant Types</h3>
+<h4>Authorization Code</h4>
+<ul>
+<li>Full user flow with redirects</li>
+<li>Useful for multiple sites or to share logins with partners</li>
+</ul>
+<h4>Refresh Token</h4>
+<ul>
+<li>Request a new token when the current access token expires (HTTP 401 response)</li>
+<li>OAuth 2.0 server grants new access token or refuses
+<ul>
+<li>If server refused: user needs to make a manual request</li>
+</ul>
+</li>
+</ul>
+<h4>Client Credentials</h4>
+<ul>
+<li>Application uses client credentials (client_id, client_secret) to interact with the API directly (no user context)</li>
+</ul>
+<h4>Password (User Credentials)</h4>
+<ul>
+<li>Username and password provided to OAuth 2.0 server, which returns an access (and refresh) token.</li>
+<li>Useful for single-page apps (don't need to redirect user)</li>
+<li>However, client_id and client_secret need to be sent with the username and password, but putting the client_secret into JavaScript means it is readable in the browser...</li>
+<li>Instead, make a proxy script that takes a username and password as POST items, pass them onto the OAuth 2.0 server with the client_id and client_secret (from some secret config file on the server)</li>
+</ul>
+<h4>Custom Grant Types</h4>
+<p>Example &quot;sign-up or login&quot; flow:</p>
+<ol>
+<li>User provides a URL of an image, which contains a photograph of a car which happens to be yellow (:trollface:), or a string matching &quot;facebook&quot;, &quot;twitter&quot;, etc. and an <code>access_token</code></li>
+<li>Grab the users data</li>
+<li>Find out if they are a registered user; create a new user if not</li>
+<li>Create an access token, refresh token, etc. to give that user access</li>
+</ol>
+<h2>Pagination</h2>
+<p>The splitting of data into multiple HTTP requests to limit the response size to:</p>
+<ul>
+<li>reduce amount of time spent downloading data</li>
+<li>reduce burden on database</li>
+<li>improve presentation logic when iterating over large amounts of records</li>
+</ul>
+<p>The limit/number parameter from the client should have an <strong>upper limit</strong> set. The parameter should also be <strong>greater than 0</strong>, and an <strong>integer</strong> not a decimal.</p>
+<h3>Paginators</h3>
+<p>Example response with meta data:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    // ...
+  ],
+  &quot;pagination&quot;: {
+    &quot;total&quot;: 1000, // number of records for this specific item
+    &quot;count&quot;: 12,
+    &quot;per_page&quot;: 12, // maximum number of items to be shown per page
+    &quot;current_page&quot;: 1,
+    &quot;total_pages&quot;: 84, // ceil(total / per page)
+    &quot;next_url&quot;: &quot;https://api.example.com/places?page=2&amp;number=12&quot;
+  }
+}
+</code></pre>
+<ul>
+<li>expensive to query database for total number of items</li>
+<li>caching, pre-population may be options for apps with small data sets</li>
+<li>doesn't scale well for large data sets</li>
+<li>content can be repeated if new item is added between HTTP requests</li>
+</ul>
+<h3>Offsets and Cursors</h3>
+<p>Example response with meta data:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    // ...
+  ],
+  &quot;pagination&quot;: {
+    &quot;cursors&quot;: {
+      &quot;after&quot;: 12, // records with IDs 1-12 all available
+      &quot;next_url&quot;: &quot;https://api.example.com/places?cursor=12&amp;number=12&quot; // retrieve 12 records *after* item with ID 12
+    }
+  }
+}
+</code></pre>
+<ul>
+<li>better to use offset instead of auto-incremented integers ('Fetch 12 records with an offset of 12' vs 'Fetch records after id=12')</li>
+<li>could encode offset values to obscure them, preventing people from doing calculations with the values</li>
+<li>respond with an empty collection if no more data to be found rather than a 404 (url is not wrong, there's just no more data)</li>
+</ul>
+<pre><code class="language-php">&lt;?php
+use Acme\Model\Place;
+use Acme\Transformer\PlaceTransformer;
+use League\Fractal\Cursor\Cursor;
+use League\Fractal\Resource\Collection;
+
+$current = isset($_GET['cursor']) ? (int) base64_decode($_GET['cursor']) : 0;
+$per_page = isset($_GET['number']) ? (int) $_GET['number'] : 20;
+
+$places = Place::findNearbyPlaces($lat, $lon)
+  -&gt;limit($per_page)
+  -&gt;skip($current)
+  -&gt;get();
+
+$next = base64_encode((string) ($current + $per_page));
+
+$cursor = new Cursor($current, $next, $places-&gt;count());
+
+$resource = new Collection($places, new PlaceTransformer);
+$resource-&gt;setCursor($cursor);
+</code></pre>
+<h2>Documentation</h2>
+<h3>Types of Documentation</h3>
+<h4>API Reference</h4>
+<ul>
+<li>list of all endpoints and their associated HTTP methods</li>
+<li>descriptions of what they do</li>
+<li>list of all arguments with descriptions of acceptable values, formats</li>
+</ul>
+<h4>Sample Code</h4>
+<ul>
+<li>concrete exmaple in different language(s) showing common scenarios</li>
+</ul>
+<h4>Guides or Tutorials</h4>
+<ul>
+<li>blog post with images, diagrams, code examples on a specific subject or scenario</li>
+</ul>
+<h2>HATEOS</h2>
+<p><strong>H</strong>ypermedia <strong>a</strong>s <strong>t</strong>he <strong>E</strong>ngine <strong>o</strong>f <strong>A</strong>pplication <strong>S</strong>tate</p>
+<h3>Content Negotiation</h3>
+<p>URIs are a list of resources that can be represented in different formats depending on the <code>Accept</code> header, and <strong>nothing else</strong>.</p>
+<pre><code class="language-php">// Format response according to main mime-type value
+// TODO: do something with charset, if provided
+function respondWithArray(array $array, array $headers = []) {
+  $mimeParts = (array) explode(';', Input::server('HTTP_ACCEPT'));
+  $mimeType = strtolower($mimeParts[0]);
+
+  switch ($mimeType) {
+    case 'application/json':
+      $contentType = 'application/json';
+      $content = json_encode($array);
+      break;
+    case 'application/x-yaml':
+      $contentType = 'application/x-yaml';
+      $dumper = new YamlDumper();
+      $content = $dumper-&gt;dump($array, 2);
+      break;
+    default:
+      $contentType = 'application/json';
+      $content = json_encode([
+        'error' =&gt; [
+          'code' =&gt; static::CODE_INVALID_MIME_TYPE,
+          'http_code' =&gt; 415,
+          'message' =&gt; sprintf('Content of type %s is not supported.', $mimeType),
+        ]
+      ]);
+  }
+
+  $response = Response::make($content, $this-&gt;statusCode, $headers);
+  $response-&gt;header('Content-Type', $contentType);
+
+  return $response;
+}
+</code></pre>
+<h3>Hypermedia Controls</h3>
+<p>Hypermedia controls are just links; linking to other resources should be the same in an API as it is in a web page.
+An API should be able to make perfect sense to an API client application and the human looking at the responses.</p>
+<p>In addition to representing one or more resources, output should indicate what data can be related and where that data is located:</p>
+<pre><code class="language-json">{
+  &quot;data&quot;: [
+    // ...
+    &quot;links&quot;: [
+      {
+        &quot;rel&quot;: &quot;self&quot;, // where the resource is actually located (may not be current URL)
+        &quot;uri&quot;: &quot;/places/2&quot;
+      },
+      {
+        &quot;rel&quot;: &quot;place.checkins&quot;, // namespaced custom relationship with a sub-resource
+        &quot;uri&quot;: &quot;/places/2/checkins&quot;
+      },
+      {
+        &quot;rel&quot;: &quot;place.image&quot;,
+        &quot;uri&quot;: &quot;/places/2/image&quot;
+      }
+    ]
+  ]
+}
+
+</code></pre>
+<h4>Creating Hypermedia Controls</h4>
+<p>Adding links to the data output can be done in the &quot;transformation&quot; or &quot;presentation&quot; layer. These should only indicate the locations of resources, not actions.</p>
+<pre><code class="language-js">function transform(place) {
+  return {
+    // ...
+    links: [
+      {
+        rel: 'self',
+        uri: `/places/${place.id}`,
+      },
+      {
+        rel: 'place.checkins',
+        uri: `/places/${place.id}/checkins`,
+      },
+      {
+        rel: 'place.image',
+        uri: `/places/${place.id}/image`,
+      },
+    ],
+  };
+}
+</code></pre>
+<h4>Discovering Resources Programmatically</h4>
+<p>Example request:</p>
+<pre><code>OPTIONS /places/2/checkins HTTP/1.1
+Host: localhost:8000
+</code></pre>
+<p>Example response:</p>
+<pre><code>HTTP/1.1 200 OK
+Host: localhost:8000
+Connection: close
+Allow: GET,HEAD,POST
+</code></pre>
+<pre><code class="language-php">use GuzzleHttp\Client;
+
+$client = new Client(['base_url' =&gt; 'http://localhost:8000']);
+$response = $client-&gt;options('places/2/checkins');
+$methods = array_walk('trim', explode(',', $response-&gt;getHeader('Accept')));
+var_dump($methods); // ['GET', 'HEAD', 'POST']
+</code></pre>
+<h2>API Versioning</h2>
+<p>All approaches have their pros and cons, may not be technically &quot;RESTful&quot;, difficult, or all of the above. Choose the approach that is most realistic for your project (implementation difficulty, target audience skill/knowledge level).</p>
+<ul>
+<li><a href="http://www.lexicalscope.com/blog/2012/03/12/how-are-rest-apis-versioned/">How are REST APIs versioned?</a> by Tim Wood</li>
+<li><a href="http://barelyenough.org/blog/2008/05/versioning-rest-web-services/">Versioning REST Web Services</a> by Peter Williams</li>
+<li><a href="http://blog.steveklabnik.com/posts/2011-07-03-nobody-understands-rest-or-http#i_want_my_api_to_be_versioned">Nobody Understands REST or HTTP</a> by Steve Klabnik</li>
+</ul>
+<h3>🟠 Approach #1: URI</h3>
+<p><code>https://api.example.com/v1/places</code></p>
+<p>Consider making each version its own code-base (different web server hosts, even different servers).</p>
+<ul>
+<li>APIs with same language, framework, etc. can share a Git history
+Git Flow model:
+<ul>
+<li>1.0/main</li>
+<li>1.0/develop</li>
+<li>2.0/main</li>
+<li>2.0/develop</li>
+</ul>
+</li>
+</ul>
+<p><strong>Popular APIs</strong></p>
+<ul>
+<li>Bitly</li>
+<li>Disqus</li>
+<li>Dropbox</li>
+<li>Bing</li>
+<li>Etsy</li>
+<li>Foursquare</li>
+<li>Tumblr</li>
+<li>Twitter</li>
+<li>Yammer</li>
+<li>YouTube</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Simple for API developers</td>
+<td>- Not technically RESTful</td>
+</tr>
+<tr>
+<td>- Simple for API consumers</td>
+<td>- Tricky to separate onto different servers</td>
+</tr>
+<tr>
+<td>- &quot;Copy-pastable&quot; URLs</td>
+<td>- Forces API consumers to do weird things to keep links up-to-date</td>
+</tr>
+</tbody>
+</table>
+<h3>🟠 Approach #2: Hostname</h3>
+<p><code>https://api-v1.example.com/places</code></p>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Simple for API developers</td>
+<td>- Not technically RESTful</td>
+</tr>
+<tr>
+<td>- Simple for API consumers</td>
+<td>- Forces API consumers to do weird things to keep links up-to-date</td>
+</tr>
+<tr>
+<td>- &quot;Copy-pastable&quot; URLs</td>
+<td></td>
+</tr>
+<tr>
+<td>- Easy to use DNS to split versions over multiple servers</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>💀 Approach #3: Body and Query Params</h3>
+<pre><code>POST /places HTTP/1.1
+Host: api.example.com
+Content-Type: application/json
+
+{
+  &quot;version&quot;: &quot;1.0&quot;
+}
+</code></pre>
+<pre><code>POST /places?version=1.0 HTTP/1.1
+Host: api.example.com
+
+header1,header2
+value1,value2
+</code></pre>
+<p><strong>Popular APIs</strong></p>
+<ul>
+<li>Netflix</li>
+<li>Google Data</li>
+<li>PayPal</li>
+<li>Amazon SQS</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Simple for API developers</td>
+<td>- Different content-types require different params</td>
+</tr>
+<tr>
+<td>- Simple for API consumers</td>
+<td>- Forces API consumers to do weird things to keep links up-to-date with query string param</td>
+</tr>
+<tr>
+<td>- Keeps URLs the same when param is in the body</td>
+<td></td>
+</tr>
+<tr>
+<td>- Technically a bit more RESTful than URI versioning</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>💀 Approach #4: Custom Request Header</h3>
+<p>Example request:</p>
+<pre><code>GET /places HTTP/1.1
+Host: api.example.com
+BadAPIVersion: 1.0
+</code></pre>
+<p>Example response:</p>
+<pre><code>HTTP/1.1 200 OK
+BadAPIVersion: 1.0
+Vary: BadAPIVersion
+</code></pre>
+<p><strong>Popular APIs</strong></p>
+<ul>
+<li>Azure</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Simple for API consumers</td>
+<td>- Cache systems can get confused</td>
+</tr>
+<tr>
+<td>- Keeps URLs the same</td>
+<td>- API developers can get confused (if they don't know about headers)</td>
+</tr>
+<tr>
+<td>- Technically a bit more RESTful than URI versioning</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>🟢 Approach #5: Content Negotiation</h3>
+<p><code>Accept: application/vnd.github[.version].param[+json]</code></p>
+<p><strong>Popular APIs</strong></p>
+<ul>
+<li><a href="https://developer.github.com/v3/media/#api-v3-media-type-and-the-future">GitHub</a></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- Simple for API consumers (if they know about headers)</td>
+<td>- API developers can get confused (if they don't know about headers)</td>
+</tr>
+<tr>
+<td>- Keeps URLs the same</td>
+<td>- Versioning entire API an confuse users (same as previous approaches)</td>
+</tr>
+<tr>
+<td>- HATEOAS-friendly</td>
+<td></td>
+</tr>
+<tr>
+<td>- Cache-friendly</td>
+<td></td>
+</tr>
+<tr>
+<td>- Author-approved</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>🟢 Approach #6: Content Negotiation for Resources</h3>
+<p><code>Accept: application/vnd.github[.resource][.version].param[+json]</code></p>
+<p><strong>Popular APIs</strong></p>
+<ul>
+<li>GitHub</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>- HATEOAS-friendly</td>
+<td>- API consumers need to pay attention to versions</td>
+</tr>
+<tr>
+<td>- Cache-friendly</td>
+<td>- Splitting across multiple codebases is hard</td>
+</tr>
+<tr>
+<td>- Keeps URLs the same</td>
+<td>- Accidental breakage can happen when in same codebase if transformers not versioned</td>
+</tr>
+<tr>
+<td>- Easier upgrades for API consumers</td>
+<td></td>
+</tr>
+<tr>
+<td>- Can be on one codebase or multiple</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>🟠 Approach #7: Feature Flagging</h3>
+<p>Facebook makes a custom API version for each client application which gets enabled via feature flags (&quot;Migrations&quot;). Advance notice is given to API consumers when a new Migration becomes available. Eventually, the Migration becomes enabled by default, and changes are in effect across all consumers. Only one version is maintained at a time; feature flags only exist for a few months until the old code is removed.</p>
+<p>It is hard to time the changeover for API consumers, so <code>if</code> statements are required to look for fields depending on the version with comments to remove them when the Migration is confirmed to work.</p>
+<hr>
+<h2>Additional Resources</h2>
+<ul>
+<li><a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP 1.1 Specification</a></li>
+</ul>
+</article>
+  </body>
+</html>
