@@ -3,7 +3,7 @@ module.exports = function (config) {
   config.addPassthroughCopy('src/css');
 
   return {
-    pathPrefix: '/jamstastic/',
+    pathPrefix: '/University-of-Trial-and-Error/',
     dir: {
       input: 'src',
       includes: '_includes',

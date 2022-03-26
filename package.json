@@ -1,5 +1,5 @@
 {
-  "name": "jamstastic",
+  "name": "university-of-trial-and-error",
   "version": "1.0.0",
   "scripts": {
     "start": "eleventy --serve",
